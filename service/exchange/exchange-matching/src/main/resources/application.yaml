@@ -24,3 +24,14 @@ open:
       matching:
         consumer-group: exchange-matching
         loader-interval-ms: 1000
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,liveness,readiness
+  endpoint:
+    health:
+      probes:
+        enabled: true

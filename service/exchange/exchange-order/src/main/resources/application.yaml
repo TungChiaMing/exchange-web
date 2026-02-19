@@ -20,3 +20,13 @@ open:
     retry-task:
       rescue:
         enabled: true
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,liveness,readiness
+  endpoint:
+    health:
+      probes:
+        enabled: true

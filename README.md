@@ -201,3 +201,88 @@ So if you have some topics, or want to implement certain exchange business funct
 I hope the foundation I spent some time building can be helpful to everyone, so you don't have to reinvent these wheels.
 
 The cluster has been optimized, and the overall startup uses about 6~8 GB of memory, suitable for development on a 32GB RAM computer.
+
+
+
+## Install
+
+```bash
+mnv package
+cd script
+docker pull nacos/nacos-server:v2.4.3
+chmod +x cluster-up.sh
+./cluster-up.sh
+
+telepresence connect --mapped-namespaces default
+
+mvn clean install
+cd ..
+cd service/exchange/exchange-web
+./quick-start.sh
+```
+
+
+```bash
+kubectl apply -f k8s/service-exchange/exchange-account.yaml
+kubectl apply -f k8s/service-exchange/exchange-auth.yaml
+kubectl apply -f k8s/service-exchange/exchange-gateway.yaml
+kubectl apply -f k8s/service-exchange/exchange-market.yaml
+kubectl apply -f k8s/service-exchange/exchange-matching.yaml
+kubectl apply -f k8s/service-exchange/exchange-order.yaml
+kubectl apply -f k8s/service-exchange/exchange-position.yaml
+kubectl apply -f k8s/service-exchange/exchange-risk.yaml
+kubectl apply -f k8s/service-exchange/exchange-user.yaml
+kubectl apply -f k8s/service-exchange/exchange-admin.yaml
+
+kind load docker-image exchange-account:latest --name exchange
+kind load docker-image exchange-auth:latest --name exchange
+kind load docker-image exchange-gateway:latest --name exchange
+kind load docker-image exchange-market:latest --name exchange
+kind load docker-image exchange-matching:latest --name exchange
+kind load docker-image exchange-order:latest --name exchange
+kind load docker-image exchange-position:latest --name exchange
+kind load docker-image exchange-risk:latest --name exchange
+kind load docker-image exchange-user:latest --name exchange
+kind load docker-image exchange-admin:latest --name exchange
+```
+
+## Result
+
+```bash
+Cluster endpoints are ready. Access services using in-cluster DNS:
+  Ingress: http://ingress-nginx-controller.ingress-nginx.svc.cluster.local/
+  MySQL primary: infra-mysql-0.infra-mysql-headless.default.svc.cluster.local:3306
+  MySQL secondary: infra-mysql-1.infra-mysql-headless.default.svc.cluster.local:3306
+    root password: root
+    app user/password: app_user / app_user
+  Redis cluster: infra-redis.default.svc.cluster.local:6379
+  Kafka broker: infra-kafka.default.svc.cluster.local:9092
+  Kafka Connect REST: http://infra-kafka-connect.default.svc.cluster.local:8083
+  Redpanda Console: http://redpanda-console.default.svc.cluster.local:8080
+  Nacos console: http://infra-nacos.default.svc.cluster.local:8848
+  Argo CD API/UI: https://argocd-server.argocd.svc.cluster.local
+    argocd admin/password: admin / dni3DBnR-XuY2kLs
+  Prometheus: http://prometheus.monitoring.svc.cluster.local:9090
+  Alertmanager: http://alertmanager.monitoring.svc.cluster.local:9093
+  Grafana: http://grafana.monitoring.svc.cluster.local:3000
+    grafana admin/password: admin / admin123
+```
+
+## Usage
+
+腳本執行後，可透過 Kubernetes DNS 直接訪問以下服務（請先確保本機能解析 `*.svc.cluster.local`，例如使用 Telepresence）：
+
+- Ingress 控制器：`http://ingress-nginx-controller.ingress-nginx.svc.cluster.local`
+- Argo CD：`https://argocd-server.argocd.svc.cluster.local`
+- Prometheus：`http://prometheus.monitoring.svc.cluster.local:9090`
+- Alertmanager：`http://alertmanager.monitoring.svc.cluster.local:9093`
+- Grafana：`http://grafana.monitoring.svc.cluster.local:3000`
+- Nacos：`http://infra-nacos.default.svc.cluster.local:8848/nacos`
+- MySQL：
+    - `infra-mysql-0.infra-mysql-headless.default.svc.cluster.local:3306`（帳號/密碼 `root/root`）
+    - `infra-mysql-1.infra-mysql-headless.default.svc.cluster.local:3306`（帳號/密碼 `root/root`）
+- Redis Cluster：
+    - `redis-cli -h infra-redis.default.svc.cluster.local -p 6379`
+    - 或使用 Pod DNS：`infra-redis-{0..2}.infra-redis-headless.default.svc.cluster.local`
+- Kafka Broker：`kafka-topics.sh --bootstrap-server infra-kafka.default.svc.cluster.local:9092 --list`
+- Redpanda Console：`http://redpanda-console.default.svc.cluster.local:8080`

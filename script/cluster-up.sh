@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+# set -eu
 if ! set -o pipefail 2>/dev/null; then
   printf 'Warning: pipefail not supported; continuing without it.\n'
 fi
@@ -169,7 +169,7 @@ ensure_directories() {
 }
 
 ensure_docker_images() {
-  local images=("mysql:8.0" "redis:7.2.4-alpine" "apache/kafka:3.7.0" "docker.redpanda.com/redpandadata/console:latest" "confluentinc/cp-kafka-connect:7.5.0" "curlimages/curl:8.9.1" "nacos/nacos-server:v2.3.2" "registry.k8s.io/ingress-nginx/controller:v1.14.0@sha256:e4127065d0317bd11dc64c4dd38dcf7fb1c3d72e468110b4086e636dbaac943d" "busybox:1.36")
+  local images=("mysql:8.0" "redis:7.2.4-alpine" "apache/kafka:3.7.0" "docker.redpanda.com/redpandadata/console:latest" "confluentinc/cp-kafka-connect:7.5.0" "curlimages/curl:8.9.1" "nacos/nacos-server:v2.4.3" "registry.k8s.io/ingress-nginx/controller:v1.14.0@sha256:e4127065d0317bd11dc64c4dd38dcf7fb1c3d72e468110b4086e636dbaac943d" "busybox:1.36")
   
   for image in "${images[@]}"; do
     if ! docker image inspect "$image" >/dev/null 2>&1; then
@@ -425,7 +425,7 @@ main() {
   read -r selection
   
   parse_args "$@"
-  KUBECTL_CONTEXT_ARGS=()
+  # KUBECTL_CONTEXT_ARGS=()
   [[ -n "$CONTEXT" ]] && KUBECTL_CONTEXT_ARGS=("--context" "$CONTEXT")
   KUBECTL_APP_ARGS=("${KUBECTL_CONTEXT_ARGS[@]}")
   [[ -n "$NAMESPACE" ]] && KUBECTL_APP_ARGS+=("--namespace" "$NAMESPACE")
@@ -456,8 +456,9 @@ main() {
   # Group 2: ArgoCD
   if [[ "$selection" == *"2"* ]]; then
       log_step "Applying ArgoCD"
-      run_with_log "argocd-install" install_argocd & pids+=($!)
-      run_with_log "argocd-config" configure_argocd & pids+=($!)
+
+      run_with_log "argocd-install" install_argocd
+      run_with_log "argocd-config" configure_argocd
   fi
   
   # Group 3: Monitoring
